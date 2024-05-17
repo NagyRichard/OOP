@@ -7,23 +7,23 @@ class Szalloda:
         self.name = name
         self.szobak = []
         self.foglalasok = []
-#szoba hozzáadása
+
     def add_szoba(self, szoba):
         self.szobak.append(szoba)
-#szobák lekérdezése
+
     def elerheto_szobak(self, szobatipus=None):
         if szobatipus:
             return [szoba for szoba in self.szobak if szoba.szobatipus == szobatipus and not szoba.foglalt]
         else:
             return [szoba for szoba in self.szobak if not szoba.foglalt]
-#szobafoglalás
+
     def make_reservation(self, foglalas):
         self.foglalasok.append(foglalas)
         for szoba in self.szobak:
             if szoba.Szobaszam == foglalas.Szobaszam:
                 szoba.foglalt = True
                 break
-#Foglalások törlése
+
     def foglalas_torles(self, reservation_id):
         for foglalas in self.foglalasok:
             if foglalas.id == reservation_id:
@@ -37,28 +37,27 @@ class Szalloda:
         print(f"Nincs ilyen azonosítójú foglalás: {reservation_id}")
 
 class szobak:
-    def __init__(self, Szobaszam, szobatipus, ar):
+    alap_ar = 10000  # Alap ár egyágyas szobára
+
+    def __init__(self, Szobaszam, szobatipus):
         self.Szobaszam = Szobaszam
         self.szobatipus = szobatipus
-        self.ar = ar
+        self.ar = self.set_ar()
         self.foglalt = False
-    alap_ar = 10000  # Szobák alap ára
- #    def set_ar(self):
- #       if self.szobatipus == "KétÁgyas":
- #           return int(szobak.alap_ar * 1.2)
- #      return szobak.alap_ar
- #szoba osztályok
-class bad_1(szobak):
-    def __init__(self, Szobaszam,):
-        super().__init__(Szobaszam, "EgyÁgyas", "10000" )
-        
 
+    def set_ar(self):
+        if self.szobatipus == "KétÁgyas":
+            return int(szobak.alap_ar * 1.2)
+        return szobak.alap_ar
+
+class bad_1(szobak):
+    def __init__(self, Szobaszam):
+        super().__init__(Szobaszam, "EgyÁgyas")
 
 class bad_2(szobak):
-    def __init__(self, Szobaszam,):
-        super().__init__(Szobaszam, "KétÁgyas", "12000" )
+    def __init__(self, Szobaszam):
+        super().__init__(Szobaszam, "KétÁgyas")
 
-#foglalási azonosító
 class Foglalas:
     next_id = 1
 
@@ -78,28 +77,38 @@ class Foglalas:
         return self.ar_per_night * num_nights
 
     def __str__(self):
-        return (f"Kedves {self.vendeg_neve}! A foglalásod sikeres volt. "
-            f"A szobád: {self.Szobaszam}. "
-            f"A foglalásod dátuma {self.check_in_date.strftime('%Y-%m-%d')}-tól {self.check_out_date.strftime('%Y-%m-%d')}-ig. "
-            f"A foglalás Azonosítója: {self.id}. "
-            f"A foglalás ára: {self.ar} Ft.")
+     return (f"Kedves {self.vendeg_neve}! A foglalásod sikeres volt. \n"
+            f"A szobád: {self.Szobaszam}. \n"
+            f"A foglalásod dátuma {self.check_in_date.strftime('%Y-%m-%d')}-tól {self.check_out_date.strftime('%Y-%m-%d')}-ig. \n"
+            f"A foglalás Azonosítója: {self.id}. \n"
+            f"A foglalás ára: {self.total_ar} Ft.\n")
 # Szálloda létrehozása
 hotel = Szalloda('Platán')
 
 # Szobák hozzáadása a szállodához
-egyagyas_szoba = bad_1('101')
-ketagyas_szoba1 = bad_2('201')
-ketagyas_szoba2 = bad_2('202')
+Szoba_101 = bad_1('101')
+Szoba_102 = bad_1('102')
+Szoba_103 = bad_1('103')
+Szoba_201 = bad_2('201')
+Szoba_202 = bad_2('202')
+Szoba_203 = bad_2('203')
+Szoba_204 = bad_1('204')
 
-hotel.add_szoba(egyagyas_szoba)
-hotel.add_szoba(ketagyas_szoba1)
-hotel.add_szoba(ketagyas_szoba2)
+hotel.add_szoba(Szoba_101)
+hotel.add_szoba(Szoba_102)
+hotel.add_szoba(Szoba_103)
+hotel.add_szoba(Szoba_201)
+hotel.add_szoba(Szoba_202)
+hotel.add_szoba(Szoba_203)
+hotel.add_szoba(Szoba_204)
 
 # Példa foglalás létrehozására
-foglalas1 = Foglalas('John Doe', '101', datetime.datetime.strptime('2024-06-01', '%Y-%m-%d'), datetime.datetime.strptime('2024-06-05', '%Y-%m-%d'))
-foglalas2 = Foglalas('Jane Smith', '201', datetime.datetime.strptime('2024-06-10', '%Y-%m-%d'), datetime.datetime.strptime('2024-06-15', '%Y-%m-%d'))
+foglalas1 = Foglalas('John Doe', '101', datetime.datetime.strptime('2024-06-01', '%Y-%m-%d'), datetime.datetime.strptime('2024-06-05', '%Y-%m-%d'), Szoba_101.ar)
+foglalas2 = Foglalas('Jane Smith', '201', datetime.datetime.strptime('2024-06-10', '%Y-%m-%d'), datetime.datetime.strptime('2024-06-15', '%Y-%m-%d'), Szoba_201.ar,)
+hotel.make_reservation(foglalas1)
+hotel.make_reservation(foglalas2)
 
-#Konzol Felület
+#Kezelői felület:
 while True:
     print("1. Elérhető szobák lekérdezése")
     print("2. Foglalás készítése")
@@ -107,7 +116,7 @@ while True:
     print("0. Kilépés")
 
     choice = input("Válassz egy opciót (0-3): ")
-# Elérhető szobák
+#szoobák lekérdezése
     if choice == '1':
         available_rooms = hotel.elerheto_szobak()
         if available_rooms:
@@ -116,8 +125,7 @@ while True:
                 print(f"Szobaszám: {szoba.Szobaszam}, Típus: {szoba.szobatipus}, Ár: {szoba.ar} Ft")
         else:
             print("Nincsenek elérhető szobák a megadott típusban.")
-
-# Foglalás dátum ellenörzéssel
+#Új foglalás /dátum ellenörzés
     elif choice == '2':
         vendeg_neve = input("Add meg a vendég nevét: ")
         Szobaszam = input("Add meg a foglalni kívánt szobaszámot: ")
@@ -143,13 +151,22 @@ while True:
                     print("A kijelentkezési dátum nem lehet korábbi vagy azonos a bejelentkezési dátummal.")
                 else:
                     Date = True
-                    foglalas = Foglalas(vendeg_neve, Szobaszam, check_in_date, check_out_date)
+                    # Keressük meg a szoba árát
+                    ar_per_night = None
+                    for szoba in hotel.szobak:
+                        if szoba.Szobaszam == Szobaszam:
+                            ar_per_night = szoba.ar
+                            break
+                    if ar_per_night is None:
+                        print("Nincs ilyen szobaszám. Kérlek, próbáld újra.")
+                        continue
+
+                    foglalas = Foglalas(vendeg_neve, Szobaszam, check_in_date, check_out_date, ar_per_night)
                     hotel.make_reservation(foglalas)
-                    print("Foglalás sikeresen létrehozva:\n{foglalas}")
+                    print(f"Foglalás sikeresen létrehozva:\n{foglalas}")
             except ValueError:
                 print("Hibás dátumformátum. Kérlek, próbáld újra.")
-
-#Foglalás törlése
+#foglalás törlés
     elif choice == '3':
         reservation_id = input("Add meg a lemondani kívánt foglalás ID-ját: ")
         hotel.foglalas_torles(int(reservation_id))
