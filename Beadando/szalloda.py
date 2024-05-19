@@ -104,6 +104,7 @@ hotel.add_szoba(Szoba_204)
 
 # Példa foglalás létrehozására
 foglalas1 = Foglalas('John Doe', '101', datetime.datetime.strptime('2024-06-01', '%Y-%m-%d'), datetime.datetime.strptime('2024-06-05', '%Y-%m-%d'), Szoba_101.ar)
+foglalas3 = Foglalas('Teszt User', '102', datetime.datetime.strptime('2024-06-02', '%Y-%m-%d'), datetime.datetime.strptime('2024-06-03', '%Y-%m-%d'), Szoba_102.ar)
 foglalas2 = Foglalas('Jane Smith', '201', datetime.datetime.strptime('2024-06-10', '%Y-%m-%d'), datetime.datetime.strptime('2024-06-15', '%Y-%m-%d'), Szoba_201.ar,)
 hotel.make_reservation(foglalas1)
 hotel.make_reservation(foglalas2)
